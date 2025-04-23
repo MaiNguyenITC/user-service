@@ -5,6 +5,7 @@ import com.example.user_service.dto.AuthResponse;
 import com.example.user_service.dto.LoginRequest;
 import com.example.user_service.dto.RegisterRequest;
 import com.example.user_service.exception.BadRequestException;
+import com.example.user_service.exception.NotFoundException;
 import com.example.user_service.model.User;
 import com.example.user_service.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,22 @@ public class UserService implements com.example.user_service.service.UserService
         createdUser.setDisplayName(registerRequest.getDisplayName());
         userRepository.save(createdUser);
     }
+
+    @Override
+    public User getUserById(String id) {
+        return userRepository.findById(id).orElseThrow(
+                () -> new NotFoundException("User not found with id: " + id));
+    }
+
+    @Override
+    public User getUserByUserName(String userName) {
+        User user = userRepository.findByusername(userName);
+        if(user == null){
+            throw new NotFoundException("User not found with username: " + userName);
+        }
+        return user;
+    }
+
 
     private Authentication authenticate(String username, String password) {
         UserDetails userDetails = customerUserDetailService.loadUserByUsername(username);
